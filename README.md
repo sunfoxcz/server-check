@@ -120,7 +120,7 @@ checks:
             password: 'replace-me'
 ```
 
-Enable Performance Schema on the replica and use the `pdo_mysql` driver in PHP. Grant the monitoring account read access on the replica. This example assumes the account already exists and PHP connects locally.
+Enable Performance Schema on the replica and use the `pdo_mysql` driver in PHP. As a MySQL administrator, run the following statement on the replica to grant the existing monitoring account `SELECT` on the table used by `mysqlReplication`. Replace `'check'@'127.0.0.1'` with the MySQL account that matches the configured username and the host PHP connects from.
 
 ```sql
 GRANT SELECT ON performance_schema.replication_connection_status TO 'check'@'127.0.0.1';
