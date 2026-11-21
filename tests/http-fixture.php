@@ -38,8 +38,10 @@ if (substr($path, -5) === '/RPC2') {
             $processes = $path === '/empty/RPC2' ? [] : [
                 ['group' => 'web', 'name' => 'server', 'statename' => 'RUNNING'],
             ];
-            if ($path === '/unhealthy/RPC2') {
+            if ($path === '/stopped/RPC2' || $path === '/unhealthy/RPC2') {
                 $processes[] = ['group' => 'jobs', 'name' => 'worker', 'statename' => 'STOPPED'];
+            }
+            if ($path === '/unhealthy/RPC2') {
                 $processes[] = ['group' => 'jobs', 'name' => 'scheduler', 'statename' => 'FATAL'];
             }
 

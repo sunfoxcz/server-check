@@ -12,14 +12,16 @@ final class SupervisorCheck implements Check
     private $timeout;
     private $username;
     private $password;
+    private $ignoreStopped;
 
-    public function __construct(HttpClient $http, $url, $timeout, $username = null, $password = null)
+    public function __construct(HttpClient $http, $url, $timeout, $username = null, $password = null, $ignoreStopped = false)
     {
         $this->http = $http;
         $this->url = $url;
         $this->timeout = $timeout;
         $this->username = $username;
         $this->password = $password;
+        $this->ignoreStopped = $ignoreStopped === true;
     }
 
     public function run()
@@ -47,9 +49,12 @@ final class SupervisorCheck implements Check
             }
 
             $process = $this->readFields($value, ['group', 'name', 'statename']);
-            if ($process['statename'] !== 'RUNNING') {
-                $failures[] = sprintf('%s:%s is %s', $process['group'], $process['name'], $process['statename']);
+            $state = $process['statename'];
+            if ($state === 'RUNNING' || ($this->ignoreStopped && $state === 'STOPPED')) {
+                continue;
             }
+
+            $failures[] = sprintf('%s:%s is %s', $process['group'], $process['name'], $state);
         }
 
         if ($failures !== []) {

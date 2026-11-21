@@ -87,6 +87,10 @@ NEON;
             username: server_check
             password: 'fixture:password'
             timeout: 2
+        Supervisor with stopped worker:
+            url: 'http://127.0.0.1:18080/stopped/RPC2'
+            ignoreStopped: true
+            timeout: 2
     jsonApi:
         Failing JSON endpoint:
             url: 'http://127.0.0.1:18080/json-api/array-error'
@@ -106,6 +110,7 @@ NEON;
     expect(strpos($output, 'Healthy JSON endpoint: OK') !== false, 'JSON API with query parameters');
     expect(strpos($output, 'Local Supervisor: OK') !== false, 'Supervisor without credentials');
     expect(strpos($output, 'Authenticated Supervisor: OK') !== false, 'Supervisor HTTP Basic credentials');
+    expect(strpos($output, 'Supervisor with stopped worker: OK') !== false, 'Supervisor ignores stopped processes when configured');
     expect(strpos($output, 'All checks complete') !== false, 'Admin should see the final status');
 
     $configLog = $configDirectory . '/php-error.log';
@@ -180,11 +185,20 @@ $rpcFailures = [
     'invalid' => 'Invalid Supervisor XML-RPC response',
     'fault' => 'Supervisor XML-RPC returned a fault',
     'invalid-process-list' => 'Invalid Supervisor process list',
+    'stopped' => 'jobs:worker is STOPPED',
     'unhealthy' => "jobs:worker is STOPPED\njobs:scheduler is FATAL",
 ];
 foreach ($rpcFailures as $path => $message) {
     $check = new SupervisorCheck($http, $fixtureUrl . '/' . $path . '/RPC2', 2);
     expectFailure([$check, 'run'], $message);
+}
+
+$ignoreStopped = new SupervisorCheck($http, $fixtureUrl . '/unhealthy/RPC2', 2, null, null, true);
+try {
+    $ignoreStopped->run();
+    throw new LogicException('Expected a Supervisor process failure');
+} catch (RuntimeException $error) {
+    expect($error->getMessage() === 'jobs:scheduler is FATAL', 'Ignore stopped processes while reporting other failures');
 }
 
 $healthOptions = ['wait_for_status' => 'yellow', 'timeout' => '2s'];

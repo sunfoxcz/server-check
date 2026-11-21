@@ -72,7 +72,8 @@ final class Bootstrap
                     $options['url'],
                     $options['timeout'],
                     isset($options['username']) ? $options['username'] : null,
-                    isset($options['password']) ? $options['password'] : null
+                    isset($options['password']) ? $options['password'] : null,
+                    isset($options['ignoreStopped']) ? $options['ignoreStopped'] : false
                 );
             case 'jsonApi':
                 return new JsonApiCheck(

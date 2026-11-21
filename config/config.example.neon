@@ -38,6 +38,9 @@ checks:
     supervisor:
         Supervisor:
             url: 'http://127.0.0.1:9001/RPC2'
+            username: server_check
+            password: 'replace-me'
+            ignoreStopped: true
             timeout: 5
 
     # Optional check for a custom JSON health endpoint.

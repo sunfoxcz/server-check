@@ -40,7 +40,7 @@ Set credentials in each check instance. The HTTP settings `timeout` and `request
 
 ### Supervisor
 
-The `supervisor` check uses XML-RPC on `/RPC2`. It requires the Supervisor daemon and all managed processes to be `RUNNING`. The admin report lists each process that fails the check. [Supervisor XML-RPC API](https://supervisord.org/api.html#getallprocessinfo) The example uses `http://127.0.0.1:9001/RPC2` without credentials. If PHP and Supervisor run in separate containers, use an address reachable from the PHP container. The Supervisor interface also provides process controls. For local use, bind it to the loopback interface. [Supervisor configuration](https://supervisord.org/configuration.html#inet-http-server-section-settings)
+The `supervisor` check uses XML-RPC on `/RPC2`. By default, it requires the Supervisor daemon and all managed processes to be `RUNNING`. Set `ignoreStopped: true` to skip processes in the `STOPPED` state. The admin report lists every process that fails the check. [Supervisor XML-RPC API](https://supervisord.org/api.html#getallprocessinfo) The example configuration uses `http://127.0.0.1:9001/RPC2` with placeholder credentials. Omit `username` and `password` if the listener allows unauthenticated requests. If PHP and Supervisor run in separate containers, use an address reachable from the PHP container. The Supervisor interface also provides process controls. For local use, bind it to the loopback interface. [Supervisor configuration](https://supervisord.org/configuration.html#inet-http-server-section-settings)
 
 For password authentication, set a username and password in `supervisord.conf`. Keep the existing `[rpcinterface:supervisor]` section if your configuration already has one.
 
@@ -63,6 +63,7 @@ checks:
             url: 'http://127.0.0.1:9001/RPC2'
             username: server_check
             password: 'replace-me'
+            ignoreStopped: true
             timeout: 5
 ```
 
