@@ -18,6 +18,13 @@ checks:
             user: check
             password: 'xxx'
 
+    # Optional check for a MySQL replica.
+    # mysqlReplication:
+    #     MySQL replica:
+    #         dsn: 'mysql:host=replica;port=3306'
+    #         user: check
+    #         password: 'replace-me'
+
     elasticsearch:
         ElasticSearch:
             hosts:

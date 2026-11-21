@@ -5,7 +5,7 @@ This repository provides an HTTP endpoint for monitoring Redis, MySQL and Postgr
 ## Layout and behavior
 
 - Keep `public/index.php` as the HTTP entry point and place application code in `src/`. Checks implement `Sunfox\ServerCheck\Checks\Check` and are registered in `src/Bootstrap.php`.
-- The configured check types are `redis`, `database`, `elasticsearch`, `rabbitmq`, `supervisor`, and `jsonApi`. Each type can contain multiple named instances. The `database` check uses PDO and runs `SELECT 1`.
+- The configured check types are `redis`, `database`, `mysqlReplication`, `elasticsearch`, `rabbitmq`, `supervisor`, and `jsonApi`. Each type can contain multiple named instances. The `database` check uses PDO and runs `SELECT 1`. The `mysqlReplication` check reads the receiver status of every MySQL replication channel.
 - `supervisor` uses the native XML-RPC interface and checks that the daemon and every managed process are `RUNNING`. The optional `ignoreStopped` flag skips processes in the `STOPPED` state. `jsonApi` checks for HTTP 200 with an `application/json` content type and can report a configured `errorField` on error responses.
 - Monitoring requests return HTTP 200 with `All checks complete` after every check passes, or an empty HTTP 500 response on the first failure. Requests from `adminIps` report every check. The client IP comes from `REMOTE_ADDR`.
 

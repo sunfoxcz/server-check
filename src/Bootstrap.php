@@ -10,6 +10,7 @@ use Sunfox\ServerCheck\Checks\Check;
 use Sunfox\ServerCheck\Checks\DatabaseCheck;
 use Sunfox\ServerCheck\Checks\ElasticsearchCheck;
 use Sunfox\ServerCheck\Checks\JsonApiCheck;
+use Sunfox\ServerCheck\Checks\MySqlReplicationCheck;
 use Sunfox\ServerCheck\Checks\RabbitMqCheck;
 use Sunfox\ServerCheck\Checks\RedisCheck;
 use Sunfox\ServerCheck\Checks\SupervisorCheck;
@@ -62,6 +63,8 @@ final class Bootstrap
                 return new RedisCheck($options['host'], $options['port']);
             case 'database':
                 return new DatabaseCheck($options['dsn'], $options['user'], $options['password']);
+            case 'mysqlReplication':
+                return new MySqlReplicationCheck($options['dsn'], $options['user'], $options['password']);
             case 'elasticsearch':
                 return new ElasticsearchCheck($http, $options['hosts'], $options['health'], $options['requestTimeout']);
             case 'rabbitmq':

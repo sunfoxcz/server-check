@@ -13,7 +13,20 @@ composer install --no-dev
 
 Run Composer with the same PHP version as your web server. If your local `composer.lock` was generated with a different PHP version, run `composer update --no-dev` with the target version. Use `composer check-platform-reqs` to verify that the required PHP extensions are available.
 
-Set your service addresses and credentials in `config/config.neon`. Git ignores this file. Make sure the user running PHP can read it. Set the web root to `public/` and configure your monitoring system to send an HTTP GET request to the site URL. To run locally, use `php -S 127.0.0.1:8080 -t public`.
+Set your service addresses and credentials in `config/config.neon`. Git ignores this file. Make sure the user running PHP can read it. For a dedicated site, set the web root to `public/` and configure your monitoring system to send an HTTP GET request to the site URL. To run locally, use `php -S 127.0.0.1:8080 -t public`.
+
+### nginx and PHP-FPM
+
+To serve the endpoint at `/check`, add this block to the nginx `server` configuration. Set `root` to the project's `public/` directory and `fastcgi_pass` to your PHP-FPM listener. Configure your monitor to send a GET request to `/check`. [nginx FastCGI documentation](https://nginx.org/en/docs/http/ngx_http_fastcgi_module.html)
+
+```nginx
+location = /check {
+    root           /var/www/check/public;
+    include        fastcgi_params;
+    fastcgi_param  SCRIPT_FILENAME $document_root/index.php;
+    fastcgi_pass   127.0.0.1:9000;
+}
+```
 
 ## Configuration
 
@@ -93,6 +106,27 @@ CREATE DATABASE IF NOT EXISTS `check`;
 CREATE USER 'check'@'127.0.0.1' IDENTIFIED BY 'replace-me';
 GRANT SELECT ON `check`.* TO 'check'@'127.0.0.1';
 ```
+
+#### MySQL replication
+
+Use `mysqlReplication` on a replica to check the receiver for each channel. The check requires at least one channel and passes when every channel has `SERVICE_STATE = ON` and `LAST_ERROR_NUMBER = 0`. Failures include the affected channel and its last reported MySQL error. [MySQL replication connection status](https://dev.mysql.com/doc/refman/8.4/en/performance-schema-replication-connection-status-table.html)
+
+```neon
+checks:
+    mysqlReplication:
+        MySQL replica:
+            dsn: 'mysql:host=replica;port=3306'
+            user: check
+            password: 'replace-me'
+```
+
+Enable Performance Schema on the replica and use the `pdo_mysql` driver in PHP. Grant the monitoring account read access on the replica. This example assumes the account already exists and PHP connects locally.
+
+```sql
+GRANT SELECT ON performance_schema.replication_connection_status TO 'check'@'127.0.0.1';
+```
+
+The PDO driver must support the server's authentication plugin. PHP 5.6 requires a compatible default plugin on the server. [PDO MySQL compatibility](https://www.php.net/ref.pdo-mysql)
 
 #### PostgreSQL
 

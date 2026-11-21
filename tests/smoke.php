@@ -113,6 +113,19 @@ NEON;
     expect(strpos($output, 'Supervisor with stopped worker: OK') !== false, 'Supervisor ignores stopped processes when configured');
     expect(strpos($output, 'All checks complete') !== false, 'Admin should see the final status');
 
+    $config .= "\n" . <<<'NEON'
+    mysqlReplication:
+        MySQL replica:
+            dsn: 'sqlite::memory:'
+            user: check
+            password: check
+NEON;
+    file_put_contents($configFile, $config);
+    list($status, $output) = runMonitoring($entrypoint, '127.0.0.1');
+    expect($status === 200, 'Admin response status for a replication query failure');
+    expect(strpos($output, 'MySQL replica error: SQLSTATE') !== false, 'MySQL replication reports database errors');
+    expect(strpos($output, 'performance_schema.replication_connection_status') !== false, 'Replication check queries Performance Schema');
+
     $configLog = $configDirectory . '/php-error.log';
     $previousErrorLog = ini_set('error_log', $configLog);
     try {
