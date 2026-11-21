@@ -1,0 +1,48 @@
+adminIps:
+    - 192.168.1.1
+
+checks:
+    # Each type can have multiple instances. Instance names appear in the admin output.
+    redis:
+        Redis:
+            host: 127.0.0.1
+            port: 6379
+
+    database:
+        MySQL:
+            dsn: 'mysql:host=127.0.0.1;port=3306;dbname=check'
+            user: check
+            password: 'xxx'
+        PostgreSQL:
+            dsn: 'pgsql:host=127.0.0.1;port=5432;dbname=check'
+            user: check
+            password: 'xxx'
+
+    elasticsearch:
+        ElasticSearch:
+            hosts:
+                - 'http://127.0.0.1:9200'
+            health:
+                wait_for_status: yellow
+                timeout: 2s
+            requestTimeout: 5
+
+    rabbitmq:
+        RabbitMQ:
+            host: '127.0.0.1'
+            port: 5672
+            vhost: check
+            user: check
+            password: 'xxx'
+
+    supervisor:
+        Supervisor:
+            url: 'http://127.0.0.1:9001/RPC2'
+            timeout: 5
+
+    # Optional check for a custom JSON health endpoint.
+    # jsonApi:
+    #     Application health:
+    #         url: 'https://api.example.com/health?apiKey=replace-me'
+    #         errorField: errors
+    #         timeout: 5
